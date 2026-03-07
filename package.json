@@ -1,0 +1,12 @@
+{
+  "name": "habit-tracker",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}
