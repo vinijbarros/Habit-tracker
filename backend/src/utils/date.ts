@@ -38,3 +38,18 @@ export function getTodayLocalDateOnly(): Date {
 export function isBeforeTodayLocal(date: Date): boolean {
   return date.getTime() < getTodayLocalDateOnly().getTime();
 }
+
+export function addDaysLocal(date: Date, days: number): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days, 0, 0, 0, 0);
+}
+
+export function isMondayLocal(date: Date): boolean {
+  return date.getDay() === 1;
+}
+
+export function formatDbDateOnly(date: Date): string {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
