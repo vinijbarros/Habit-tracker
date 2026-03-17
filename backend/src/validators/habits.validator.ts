@@ -7,7 +7,7 @@ export const habitIdParamsSchema = z.object({
 export const createHabitBodySchema = z.object({
   title: z.string().trim().min(1, 'title is required.').max(120, 'title is too long.'),
   frequencyType: z.enum(['DAILY', 'WEEKLY', 'CUSTOM']),
-  weeklyTarget: z.number().int('weeklyTarget must be an integer.').positive().optional(),
+  weeklyTarget: z.number().int('weeklyTarget must be an integer.').positive().nullable().optional(),
 });
 
 export const updateHabitBodySchema = z
