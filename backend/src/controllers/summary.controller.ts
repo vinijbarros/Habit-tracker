@@ -3,12 +3,14 @@ import { ZodError } from 'zod';
 import { prisma } from '../lib/prisma';
 import { sendError, sendSuccess } from '../utils/api-response';
 import { addDaysLocal, formatDbDateOnly, formatLocalDateOnly, parseLocalDateOnly } from '../utils/date';
+import { debugError, debugLog } from '../utils/debug';
 import { weekSummaryQuerySchema } from '../validators/summary.validator';
 
 type DayStatus = 'DONE' | 'MISSED' | 'SKIPPED' | 'PENDING';
 
 export async function getWeekSummary(req: Request, res: Response): Promise<void> {
   if (!req.userId) {
+    debugLog('SUMMARY', 'Week summary blocked: missing userId');
     sendError(res, 401, 'Unauthorized.');
     return;
   }
@@ -16,8 +18,10 @@ export async function getWeekSummary(req: Request, res: Response): Promise<void>
   try {
     const { start } = weekSummaryQuerySchema.parse(req.query);
     const startDate = parseLocalDateOnly(start);
+    debugLog('SUMMARY', 'Fetching week summary', { userId: req.userId, start });
 
     if (!startDate) {
+      debugLog('SUMMARY', 'Week summary invalid start date', { start });
       sendError(res, 400, 'Invalid start date.');
       return;
     }
@@ -102,10 +106,12 @@ export async function getWeekSummary(req: Request, res: Response): Promise<void>
     });
   } catch (error) {
     if (error instanceof ZodError) {
+      debugLog('SUMMARY', 'Week summary validation failed', error.flatten());
       sendError(res, 400, 'Validation error.', error.flatten());
       return;
     }
 
+    debugError('SUMMARY', 'Week summary failed', error);
     sendError(res, 500, 'Internal server error.');
   }
 }

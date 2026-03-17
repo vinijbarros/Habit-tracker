@@ -3,12 +3,14 @@ import { ZodError } from 'zod';
 import { prisma } from '../lib/prisma';
 import { sendError, sendSuccess } from '../utils/api-response';
 import { isBeforeTodayLocal, parseLocalDateOnly } from '../utils/date';
+import { debugError, debugLog } from '../utils/debug';
 import { dayQuerySchema } from '../validators/day.validator';
 
 type DayHabitStatus = 'DONE' | 'MISSED' | 'SKIPPED' | 'PENDING';
 
 export async function getDayStatus(req: Request, res: Response): Promise<void> {
   if (!req.userId) {
+    debugLog('DAY', 'Day summary blocked: missing userId');
     sendError(res, 401, 'Unauthorized.');
     return;
   }
@@ -16,8 +18,10 @@ export async function getDayStatus(req: Request, res: Response): Promise<void> {
   try {
     const { date } = dayQuerySchema.parse(req.query);
     const normalizedDate = parseLocalDateOnly(date);
+    debugLog('DAY', 'Fetching day status', { userId: req.userId, date });
 
     if (!normalizedDate) {
+      debugLog('DAY', 'Day summary invalid date', { date });
       sendError(res, 400, 'Invalid date.');
       return;
     }
@@ -73,10 +77,12 @@ export async function getDayStatus(req: Request, res: Response): Promise<void> {
     sendSuccess(res, 200, day);
   } catch (error) {
     if (error instanceof ZodError) {
+      debugLog('DAY', 'Day summary validation failed', error.flatten());
       sendError(res, 400, 'Validation error.', error.flatten());
       return;
     }
 
+    debugError('DAY', 'Day summary failed', error);
     sendError(res, 500, 'Internal server error.');
   }
 }

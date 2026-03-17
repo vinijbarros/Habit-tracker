@@ -1,7 +1,11 @@
 :root {
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  color: #112218;
+  background:
+    radial-gradient(circle at top left, rgba(250, 208, 145, 0.45), transparent 30%),
+    linear-gradient(135deg, #f6f2e8 0%, #dce7d5 100%);
 }
 
 * {
@@ -11,20 +15,361 @@
 body {
   margin: 0;
   min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.auth-shell {
+  min-height: 100vh;
   display: grid;
   place-items: center;
-  background: #f5f5f5;
-  color: #111827;
-}
-
-.container {
-  width: min(640px, 90vw);
   padding: 2rem;
-  border-radius: 12px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
 }
 
-h1 {
-  margin-top: 0;
+.auth-card,
+.panel {
+  background: rgba(255, 252, 245, 0.86);
+  border: 1px solid rgba(17, 34, 24, 0.12);
+  border-radius: 1.5rem;
+  box-shadow: 0 1.25rem 3rem rgba(17, 34, 24, 0.1);
+  padding: 2rem;
+  backdrop-filter: blur(12px);
+}
+
+.auth-card {
+  width: min(100%, 30rem);
+}
+
+.panel {
+  width: 100%;
+}
+
+.auth-copy,
+.auth-footer,
+.panel p,
+.panel-copy {
+  color: #476253;
+}
+
+.eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #866443;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.auth-form span {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.auth-form input,
+.habit-form input,
+.habit-form select,
+.date-field input {
+  width: 100%;
+  border: 1px solid rgba(17, 34, 24, 0.14);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 0.9rem;
+  padding: 0.9rem 1rem;
+  color: inherit;
+}
+
+.primary-button,
+.ghost-button,
+.danger-button,
+.status-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.9rem 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #235347, #3c7a5d);
+  color: #fdf9f1;
+}
+
+.ghost-button {
+  background: rgba(35, 83, 71, 0.1);
+  color: #235347;
+}
+
+.danger-button {
+  background: rgba(163, 60, 51, 0.12);
+  color: #8f2f29;
+}
+
+.primary-button:disabled,
+.status-button:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.form-error {
+  margin: 0;
+  color: #a33c33;
+  font-size: 0.95rem;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: min(100%, 72rem);
+  margin: 0 auto 1rem;
+}
+
+.app-title {
+  margin: 0;
+}
+
+.user-block {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+}
+
+.app-nav {
+  width: min(100%, 72rem);
+  margin: 0 auto 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  text-decoration: none;
+  background: rgba(255, 252, 245, 0.66);
+  border: 1px solid rgba(17, 34, 24, 0.12);
+}
+
+.nav-link-active {
+  background: #235347;
+  color: #fdf9f1;
+}
+
+.page-shell {
+  width: min(100%, 72rem);
+  margin: 0 auto;
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+}
+
+.panel-large {
+  min-height: 28rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel h2 {
+  margin: 0;
+}
+
+.state-message {
+  margin: 0;
+  padding: 1rem 0;
+  color: #476253;
+}
+
+.habit-list,
+.day-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.habit-card,
+.day-card,
+.progress-card {
+  border: 1px solid rgba(17, 34, 24, 0.1);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 1.25rem;
+  padding: 1rem 1.1rem;
+}
+
+.habit-card-header,
+.day-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.habit-card h3,
+.day-card h3 {
+  margin: 0 0 0.2rem;
+}
+
+.habit-meta {
+  margin: 0;
+  color: #6c7d72;
+}
+
+.habit-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.field-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.field-grid label,
+.date-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field-grid span,
+.date-field span {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.action-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.status-badge {
+  display: inline-flex;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.status-pending {
+  background: rgba(134, 100, 67, 0.14);
+  color: #866443;
+}
+
+.status-done {
+  background: rgba(35, 83, 71, 0.14);
+  color: #235347;
+}
+
+.status-skipped {
+  background: rgba(55, 92, 134, 0.14);
+  color: #375c86;
+}
+
+.status-missed {
+  background: rgba(163, 60, 51, 0.14);
+  color: #8f2f29;
+}
+
+.status-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.status-button {
+  background: rgba(17, 34, 24, 0.08);
+  color: #112218;
+  padding-inline: 0.95rem;
+}
+
+.status-button-active {
+  background: #235347;
+  color: #fdf9f1;
+}
+
+.progress-track {
+  height: 0.9rem;
+  border-radius: 999px;
+  background: rgba(17, 34, 24, 0.08);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #235347, #d68a5f);
+}
+
+.progress-caption {
+  margin: 0.9rem 0 0;
+  color: #476253;
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .user-block {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .auth-card,
+  .panel {
+    padding: 1.5rem;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-header,
+  .habit-card-header,
+  .day-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .status-actions {
+    justify-content: flex-start;
+  }
 }
