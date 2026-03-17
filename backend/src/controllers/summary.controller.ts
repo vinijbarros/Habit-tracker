@@ -16,9 +16,9 @@ export async function getWeekSummary(req: Request, res: Response): Promise<void>
   }
 
   try {
-    const { start } = weekSummaryQuerySchema.parse(req.query);
+    const { start, end } = weekSummaryQuerySchema.parse(req.query);
     const startDate = parseLocalDateOnly(start);
-    debugLog('SUMMARY', 'Fetching week summary', { userId: req.userId, start });
+    debugLog('SUMMARY', 'Fetching week summary', { userId: req.userId, start, end });
 
     if (!startDate) {
       debugLog('SUMMARY', 'Week summary invalid start date', { start });
@@ -26,7 +26,13 @@ export async function getWeekSummary(req: Request, res: Response): Promise<void>
       return;
     }
 
-    const endDate = addDaysLocal(startDate, 6);
+    const endDate = end ? parseLocalDateOnly(end) : addDaysLocal(startDate, 6);
+
+    if (!endDate) {
+      debugLog('SUMMARY', 'Week summary invalid end date', { end });
+      sendError(res, 400, 'Invalid end date.');
+      return;
+    }
 
     const habits = await prisma.habit.findMany({
       where: {
@@ -66,7 +72,10 @@ export async function getWeekSummary(req: Request, res: Response): Promise<void>
       logMap.set(`${log.habitId}:${formatDbDateOnly(log.date)}`, log.status);
     }
 
-    const weekDates = Array.from({ length: 7 }, (_, index) => {
+    const rangeLength =
+      Math.floor((endDate.getTime() - startDate.getTime()) / 86400000) + 1;
+
+    const weekDates = Array.from({ length: rangeLength }, (_, index) => {
       const date = addDaysLocal(startDate, index);
       return {
         key: formatLocalDateOnly(date),

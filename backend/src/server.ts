@@ -8,6 +8,7 @@ import { debugError, debugLog } from './utils/debug';
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
 
 app.use((req, res, next) => {
   const startedAt = Date.now();
@@ -30,7 +31,7 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: corsOrigin,
   }),
 );
 

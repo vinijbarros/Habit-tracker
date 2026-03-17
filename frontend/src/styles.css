@@ -195,6 +195,11 @@ select {
   grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
 }
 
+.summary-layout {
+  display: grid;
+  gap: 1.25rem;
+}
+
 .panel-large {
   min-height: 28rem;
 }
@@ -225,7 +230,9 @@ select {
 
 .habit-card,
 .day-card,
-.progress-card {
+.progress-card,
+.chart-card,
+.summary-card {
   border: 1px solid rgba(17, 34, 24, 0.1);
   background: rgba(255, 255, 255, 0.7);
   border-radius: 1.25rem;
@@ -276,6 +283,28 @@ select {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.summary-nav,
+.summary-range {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.summary-date-field {
+  min-width: 12rem;
+}
+
+.summary-range {
+  margin-bottom: 1rem;
+  color: #476253;
+}
+
+.summary-hint {
+  font-size: 0.9rem;
+  color: #6c7d72;
 }
 
 .status-badge {
@@ -342,6 +371,128 @@ select {
   color: #476253;
 }
 
+.summary-table-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.consistency-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.consistency-card {
+  padding: 1.1rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(17, 34, 24, 0.1);
+}
+
+.consistency-card-best {
+  background: linear-gradient(135deg, rgba(35, 83, 71, 0.12), rgba(255, 255, 255, 0.7));
+}
+
+.consistency-card-worst {
+  background: linear-gradient(135deg, rgba(143, 47, 41, 0.12), rgba(255, 255, 255, 0.7));
+}
+
+.consistency-card h3 {
+  margin: 0 0 0.25rem;
+}
+
+.consistency-score {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #112218;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #476253;
+  font-size: 0.95rem;
+}
+
+.chart-legend-dot {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.chart-legend-dot-done {
+  background: #235347;
+}
+
+.chart-legend-dot-missed {
+  background: #8f2f29;
+}
+
+.chart-legend-dot-skipped {
+  background: #375c86;
+}
+
+.chart-legend-dot-pending {
+  background: #866443;
+}
+
+.summary-card-header h3 {
+  margin: 0 0 0.25rem;
+}
+
+.detail-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.detail-stat {
+  padding: 0.9rem;
+  border-radius: 1rem;
+  background: rgba(17, 34, 24, 0.05);
+  border: 1px solid rgba(17, 34, 24, 0.08);
+}
+
+.detail-stat-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #6c7d72;
+  font-size: 0.85rem;
+}
+
+.summary-table-wrap {
+  overflow-x: auto;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.summary-table th,
+.summary-table td {
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(17, 34, 24, 0.08);
+}
+
+.summary-table th {
+  font-size: 0.85rem;
+  color: #476253;
+}
+
 @media (max-width: 768px) {
   .app-header {
     align-items: flex-start;
@@ -367,6 +518,14 @@ select {
   .day-card {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .detail-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .consistency-grid {
+    grid-template-columns: 1fr;
   }
 
   .status-actions {
