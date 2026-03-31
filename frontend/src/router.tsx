@@ -10,7 +10,7 @@ import { TodayPage } from './pages/today-page';
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/habits" replace />,
+    element: <Navigate to="/today" replace />,
   },
   {
     path: '/login',
@@ -27,12 +27,12 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           {
-            path: '/habits',
-            element: <HabitsPage />,
-          },
-          {
             path: '/today',
             element: <TodayPage />,
+          },
+          {
+            path: '/habits',
+            element: <HabitsPage />,
           },
           {
             path: '/summary',

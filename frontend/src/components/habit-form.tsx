@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { useLanguage } from '../contexts/language-context';
 import type { FrequencyType, Habit } from '../types/habit';
 
 interface HabitFormValues {
@@ -11,7 +12,11 @@ interface HabitFormProps {
   initialHabit?: Habit | null;
   submitLabel: string;
   onCancel?: () => void;
-  onSubmit: (values: { title: string; frequencyType: FrequencyType; weeklyTarget: number | null }) => Promise<void>;
+  onSubmit: (values: {
+    title: string;
+    frequencyType: FrequencyType;
+    weeklyTarget: number | null;
+  }) => Promise<void>;
 }
 
 function buildInitialValues(habit?: Habit | null): HabitFormValues {
@@ -23,6 +28,7 @@ function buildInitialValues(habit?: Habit | null): HabitFormValues {
 }
 
 export function HabitForm({ initialHabit, submitLabel, onCancel, onSubmit }: HabitFormProps) {
+  const { t } = useLanguage();
   const [values, setValues] = useState<HabitFormValues>(buildInitialValues(initialHabit));
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,7 +43,7 @@ export function HabitForm({ initialHabit, submitLabel, onCancel, onSubmit }: Hab
     setError('');
 
     if (!values.title.trim()) {
-      setError('Title is required.');
+      setError(t('habitForm.titleRequired'));
       return;
     }
 
@@ -45,7 +51,7 @@ export function HabitForm({ initialHabit, submitLabel, onCancel, onSubmit }: Hab
       values.weeklyTarget.trim() === '' ? null : Number.parseInt(values.weeklyTarget, 10);
 
     if (weeklyTarget !== null && weeklyTarget <= 0) {
-      setError('Weekly target must be greater than zero when provided.');
+      setError(t('habitForm.weeklyTargetInvalid'));
       return;
     }
 
@@ -62,28 +68,34 @@ export function HabitForm({ initialHabit, submitLabel, onCancel, onSubmit }: Hab
         setValues(buildInitialValues(null));
       }
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Unable to save habit.');
+      setError(submitError instanceof Error ? submitError.message : t('habits.createError'));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <form className="habit-form" onSubmit={handleSubmit}>
-      <div className="field-grid">
-        <label>
-          <span>Title</span>
-          <input
-            type="text"
-            value={values.title}
-            onChange={(event) => setValues((current) => ({ ...current, title: event.target.value }))}
-            placeholder="Read 20 minutes"
-          />
+    <form className="space-y-5" onSubmit={handleSubmit}>
+      <div>
+        <label className="field-label" htmlFor="habit-title">
+          {t('habitForm.title')}
         </label>
+        <input
+          id="habit-title"
+          type="text"
+          value={values.title}
+          onChange={(event) => setValues((current) => ({ ...current, title: event.target.value }))}
+          placeholder={t('habitForm.titlePlaceholder')}
+        />
+      </div>
 
-        <label>
-          <span>Frequency</span>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label className="field-label" htmlFor="habit-frequency">
+            {t('habitForm.frequency')}
+          </label>
           <select
+            id="habit-frequency"
             value={values.frequencyType}
             onChange={(event) =>
               setValues((current) => ({
@@ -92,36 +104,51 @@ export function HabitForm({ initialHabit, submitLabel, onCancel, onSubmit }: Hab
               }))
             }
           >
-            <option value="DAILY">Daily</option>
-            <option value="WEEKLY">Weekly</option>
-            <option value="CUSTOM">Custom</option>
+            <option value="DAILY">{t('habits.frequency.DAILY')}</option>
+            <option value="WEEKLY">{t('habits.frequency.WEEKLY')}</option>
+            <option value="CUSTOM">{t('habits.frequency.CUSTOM')}</option>
           </select>
-        </label>
+        </div>
 
-        <label>
-          <span>Weekly target</span>
+        <div>
+          <label className="field-label" htmlFor="habit-weekly-target">
+            {t('habitForm.weeklyTarget')}
+          </label>
           <input
+            id="habit-weekly-target"
             type="number"
             min="1"
             value={values.weeklyTarget}
             onChange={(event) =>
               setValues((current) => ({ ...current, weeklyTarget: event.target.value }))
             }
-            placeholder="Optional"
+            placeholder={t('habitForm.weeklyTargetPlaceholder')}
           />
-        </label>
+        </div>
       </div>
 
-      {error ? <p className="form-error">{error}</p> : null}
+      {error ? (
+        <p className="rounded-2xl border border-accent/20 bg-accent/10 px-4 py-3 text-sm text-accent">
+          {error}
+        </p>
+      ) : null}
 
-      <div className="action-row">
+      <div className="flex flex-wrap gap-3">
         {onCancel ? (
-          <button className="ghost-button" type="button" onClick={onCancel}>
-            Cancel
+          <button
+            className="rounded-full border border-border/80 bg-background px-5 py-3 text-sm font-medium text-foreground transition hover:border-primary/30 hover:text-primary"
+            type="button"
+            onClick={onCancel}
+          >
+            {t('common.cancel')}
           </button>
         ) : null}
-        <button className="primary-button" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : submitLabel}
+        <button
+          className="rounded-full bg-primary px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-progress disabled:opacity-70"
+          type="submit"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? t('common.loading') : submitLabel}
         </button>
       </div>
     </form>
