@@ -19,12 +19,14 @@ export interface HabitPayload {
   title: string;
   frequencyType: FrequencyType;
   weeklyTarget?: number | null;
+  points?: number;
 }
 
 export interface HabitUpdatePayload {
   title?: string;
   frequencyType?: FrequencyType;
   weeklyTarget?: number | null;
+  points?: number;
   active?: boolean;
 }
 

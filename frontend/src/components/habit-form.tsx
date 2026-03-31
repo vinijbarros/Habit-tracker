@@ -6,6 +6,7 @@ interface HabitFormValues {
   title: string;
   frequencyType: FrequencyType;
   weeklyTarget: string;
+  points: string;
 }
 
 interface HabitFormProps {
@@ -16,6 +17,7 @@ interface HabitFormProps {
     title: string;
     frequencyType: FrequencyType;
     weeklyTarget: number | null;
+    points: number;
   }) => Promise<void>;
 }
 
@@ -24,6 +26,7 @@ function buildInitialValues(habit?: Habit | null): HabitFormValues {
     title: habit?.title || '',
     frequencyType: habit?.frequencyType || 'DAILY',
     weeklyTarget: habit?.weeklyTarget ? String(habit.weeklyTarget) : '',
+    points: String(habit?.points ?? 10),
   };
 }
 
@@ -49,9 +52,15 @@ export function HabitForm({ initialHabit, submitLabel, onCancel, onSubmit }: Hab
 
     const weeklyTarget =
       values.weeklyTarget.trim() === '' ? null : Number.parseInt(values.weeklyTarget, 10);
+    const points = Number.parseInt(values.points, 10);
 
     if (weeklyTarget !== null && weeklyTarget <= 0) {
       setError(t('habitForm.weeklyTargetInvalid'));
+      return;
+    }
+
+    if (Number.isNaN(points) || points <= 0) {
+      setError(t('habitForm.pointsInvalid'));
       return;
     }
 
@@ -62,6 +71,7 @@ export function HabitForm({ initialHabit, submitLabel, onCancel, onSubmit }: Hab
         title: values.title.trim(),
         frequencyType: values.frequencyType,
         weeklyTarget,
+        points,
       });
 
       if (!initialHabit) {
@@ -125,6 +135,22 @@ export function HabitForm({ initialHabit, submitLabel, onCancel, onSubmit }: Hab
             placeholder={t('habitForm.weeklyTargetPlaceholder')}
           />
         </div>
+      </div>
+
+      <div>
+        <label className="field-label" htmlFor="habit-points">
+          {t('habitForm.points')}
+        </label>
+        <input
+          id="habit-points"
+          type="number"
+          min="1"
+          value={values.points}
+          onChange={(event) =>
+            setValues((current) => ({ ...current, points: event.target.value }))
+          }
+          placeholder={t('habitForm.pointsPlaceholder')}
+        />
       </div>
 
       {error ? (

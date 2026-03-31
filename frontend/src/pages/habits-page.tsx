@@ -38,6 +38,7 @@ export function HabitsPage() {
     title: string;
     frequencyType: Habit['frequencyType'];
     weeklyTarget: number | null;
+    points: number;
   }) => {
     try {
       const createdHabit = await createHabit(values);
@@ -51,6 +52,7 @@ export function HabitsPage() {
     title: string;
     frequencyType: Habit['frequencyType'];
     weeklyTarget: number | null;
+    points: number;
   }) => {
     if (!editingHabit) {
       return;
@@ -126,8 +128,8 @@ export function HabitsPage() {
             {habits.map((habit) => {
               const frequencyLabel = getFrequencyLabel(habit.frequencyType, t);
               const subtitle = habit.weeklyTarget
-                ? `${frequencyLabel} • ${t('habits.targetPerWeek', { count: habit.weeklyTarget })}`
-                : frequencyLabel;
+                ? `${frequencyLabel} • ${t('habits.targetPerWeek', { count: habit.weeklyTarget })} • ${t('habits.pointsValue', { count: habit.points })}`
+                : `${frequencyLabel} • ${t('habits.pointsValue', { count: habit.points })}`;
 
               return (
                 <HabitCard

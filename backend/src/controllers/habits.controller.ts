@@ -45,8 +45,13 @@ export async function createHabit(req: Request, res: Response): Promise<void> {
   }
 
   try {
-    const { title, frequencyType, weeklyTarget } = createHabitBodySchema.parse(req.body);
-    debugLog('HABITS', 'Creating habit', { userId: req.userId, title, frequencyType });
+    const { title, frequencyType, weeklyTarget, points } = createHabitBodySchema.parse(req.body);
+    debugLog('HABITS', 'Creating habit', {
+      userId: req.userId,
+      title,
+      frequencyType,
+      points: points ?? 10,
+    });
 
     const habit = await prisma.habit.create({
       data: {
@@ -54,6 +59,7 @@ export async function createHabit(req: Request, res: Response): Promise<void> {
         title,
         frequencyType,
         weeklyTarget: weeklyTarget ?? null,
+        points: points ?? 10,
       },
     });
 

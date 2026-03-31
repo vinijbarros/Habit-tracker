@@ -1,12 +1,13 @@
 import { AxiosError } from 'axios';
 import { ArrowRight } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthCard } from '../components/ui/auth-card';
 import { LanguageSwitcher } from '../components/ui/language-switcher';
 import { ThemeToggle } from '../components/ui/theme-toggle';
 import { useAuth } from '../contexts/auth-context';
 import { useLanguage } from '../contexts/language-context';
+import { consumeAuthNotice } from '../services/storage';
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof AxiosError) {
@@ -29,6 +30,14 @@ export function LoginPage() {
   if (isAuthenticated) {
     return <Navigate to="/today" replace />;
   }
+
+  useEffect(() => {
+    const notice = consumeAuthNotice();
+
+    if (notice) {
+      setError(notice);
+    }
+  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

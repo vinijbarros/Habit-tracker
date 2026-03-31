@@ -7,6 +7,7 @@ export interface Habit {
   title: string;
   frequencyType: FrequencyType;
   weeklyTarget: number | null;
+  points: number;
   active: boolean;
   createdAt: string;
 }
