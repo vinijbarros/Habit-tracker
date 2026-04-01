@@ -38,10 +38,19 @@ export function HabitsPage() {
     title: string;
     frequencyType: Habit['frequencyType'];
     weeklyTarget: number | null;
-    points: number;
+    customFrequencyCount: number | null;
+    customFrequencyPeriod: Habit['customFrequencyPeriod'];
+    points: number | null;
   }) => {
     try {
-      const createdHabit = await createHabit(values);
+      const createdHabit = await createHabit({
+        title: values.title,
+        frequencyType: values.frequencyType,
+        weeklyTarget: values.weeklyTarget,
+        customFrequencyCount: values.customFrequencyCount,
+        customFrequencyPeriod: values.customFrequencyPeriod,
+        ...(values.points !== null ? { points: values.points } : {}),
+      });
       setHabits((current) => [createdHabit, ...current]);
     } catch (submitError) {
       throw new Error(getErrorMessage(submitError, t('habits.createError')));
@@ -52,14 +61,23 @@ export function HabitsPage() {
     title: string;
     frequencyType: Habit['frequencyType'];
     weeklyTarget: number | null;
-    points: number;
+    customFrequencyCount: number | null;
+    customFrequencyPeriod: Habit['customFrequencyPeriod'];
+    points: number | null;
   }) => {
     if (!editingHabit) {
       return;
     }
 
     try {
-      const updatedHabit = await updateHabit(editingHabit.id, values);
+      const updatedHabit = await updateHabit(editingHabit.id, {
+        title: values.title,
+        frequencyType: values.frequencyType,
+        weeklyTarget: values.weeklyTarget,
+        customFrequencyCount: values.customFrequencyCount,
+        customFrequencyPeriod: values.customFrequencyPeriod,
+        ...(values.points !== null ? { points: values.points } : {}),
+      });
       setHabits((current) =>
         current.map((habit) => (habit.id === updatedHabit.id ? updatedHabit : habit)),
       );
@@ -127,9 +145,22 @@ export function HabitsPage() {
           <div className="space-y-4">
             {habits.map((habit) => {
               const frequencyLabel = getFrequencyLabel(habit.frequencyType, t);
-              const subtitle = habit.weeklyTarget
-                ? `${frequencyLabel} • ${t('habits.targetPerWeek', { count: habit.weeklyTarget })} • ${t('habits.pointsValue', { count: habit.points })}`
-                : `${frequencyLabel} • ${t('habits.pointsValue', { count: habit.points })}`;
+              const customFrequencyLabel =
+                habit.frequencyType === 'CUSTOM' &&
+                habit.customFrequencyCount &&
+                habit.customFrequencyPeriod
+                  ? t('habits.customTargetPerPeriod', {
+                      count: habit.customFrequencyCount,
+                      period: t(`habitForm.periods.${habit.customFrequencyPeriod}`),
+                    })
+                  : null;
+              const weeklyLabel =
+                habit.frequencyType === 'WEEKLY' && habit.weeklyTarget
+                  ? t('habits.targetPerWeek', { count: habit.weeklyTarget })
+                  : null;
+              const subtitle = [frequencyLabel, weeklyLabel, customFrequencyLabel, t('habits.pointsValue', { count: habit.points })]
+                .filter(Boolean)
+                .join(' • ');
 
               return (
                 <HabitCard

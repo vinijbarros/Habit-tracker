@@ -47,6 +47,24 @@ export function isMondayLocal(date: Date): boolean {
   return date.getDay() === 1;
 }
 
+export function startOfWeekLocal(date: Date): Date {
+  const day = date.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  return addDaysLocal(date, diff);
+}
+
+export function endOfWeekLocal(date: Date): Date {
+  return addDaysLocal(startOfWeekLocal(date), 6);
+}
+
+export function startOfMonthLocal(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
+}
+
+export function endOfMonthLocal(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0, 0, 0, 0, 0);
+}
+
 export function formatDbDateOnly(date: Date): string {
   const year = date.getUTCFullYear();
   const month = String(date.getUTCMonth() + 1).padStart(2, '0');

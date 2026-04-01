@@ -6,11 +6,35 @@ import { EmptyState } from '../components/ui/empty-state';
 import { StatusBadge } from '../components/ui/status-badge';
 import { useLanguage } from '../contexts/language-context';
 import { getTodayDateInput } from '../lib/date';
+import { getHabitFrequencySummary } from '../lib/habit';
 import { checkHabit, getDay } from '../services/day-service';
 import { getErrorMessage } from '../services/error-message';
 import type { DayHabit, HabitStatus } from '../types/habit';
 
 const statusActions: Array<Exclude<HabitStatus, 'PENDING'>> = ['DONE', 'SKIPPED', 'MISSED'];
+
+function getPeriodProgressLabel(
+  habit: DayHabit,
+  t: (key: string, params?: Record<string, string | number>) => string,
+): string | null {
+  if (habit.frequencyType === 'DAILY') {
+    return null;
+  }
+
+  const progressLabel = t('today.periodProgress', {
+    completed: habit.completedInPeriod,
+    target: habit.targetInPeriod,
+  });
+
+  if (habit.remainingInPeriod <= 0) {
+    return `${progressLabel} • ${t('today.targetReached')}`;
+  }
+
+  return `${progressLabel} • ${t('today.remainingForPeriod', {
+    remaining: habit.remainingInPeriod,
+    period: t(`today.periods.${habit.periodKind}`),
+  })}`;
+}
 
 export function TodayPage() {
   const { t } = useLanguage();
@@ -111,7 +135,14 @@ export function TodayPage() {
                   <div className="space-y-3">
                     <div>
                       <h3 className="text-lg font-semibold text-foreground">{habit.title}</h3>
-                      <p className="mt-2 text-sm text-muted">{t('today.statusSection')}</p>
+                      <p className="mt-2 text-sm text-muted">
+                        {getHabitFrequencySummary(habit, t)}
+                      </p>
+                      {getPeriodProgressLabel(habit, t) ? (
+                        <p className="mt-1 text-sm text-muted">
+                          {getPeriodProgressLabel(habit, t)}
+                        </p>
+                      ) : null}
                     </div>
                     <StatusBadge status={habit.status} />
                   </div>
@@ -148,7 +179,11 @@ export function TodayPage() {
         {!isLoading && dayHabits.length > 0 ? (
           <HabitCard
             title={dayHabits[0].title}
-            subtitle={t('today.completeAction')}
+            subtitle={
+              getPeriodProgressLabel(dayHabits[0], t)
+                ? `${getHabitFrequencySummary(dayHabits[0], t)} • ${getPeriodProgressLabel(dayHabits[0], t)}`
+                : getHabitFrequencySummary(dayHabits[0], t)
+            }
             status={dayHabits[0].status}
             onPrimaryAction={() => void handleCheck(dayHabits[0].habitId, 'DONE')}
             disabled={pendingAction === `${dayHabits[0].habitId}:DONE`}

@@ -7,6 +7,8 @@ export interface WeeklySummaryHabit {
   doneCount: number;
   missedCount: number;
   skippedCount: number;
+  targetCount: number;
+  completionRate: number;
   perDay: Array<{
     date: string;
     status: HabitStatus;

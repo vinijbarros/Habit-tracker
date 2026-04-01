@@ -1,4 +1,10 @@
-import type { FrequencyType, HabitStatus } from '../types/habit';
+import type {
+  CustomFrequencyPeriod,
+  FrequencyType,
+  Habit,
+  DayHabit,
+  HabitStatus,
+} from '../types/habit';
 import type { Language } from '../i18n';
 
 export function getFrequencyLabel(
@@ -45,4 +51,34 @@ export function formatDisplayDate(value: string, language: Language): string {
     month: 'short',
     day: '2-digit',
   }).format(date);
+}
+
+type HabitLike = Pick<
+  Habit | DayHabit,
+  'frequencyType' | 'weeklyTarget' | 'customFrequencyCount' | 'customFrequencyPeriod'
+>;
+
+export function getHabitFrequencySummary(
+  habit: HabitLike,
+  t: (key: string, params?: Record<string, string | number>) => string,
+): string {
+  const frequencyLabel = getFrequencyLabel(habit.frequencyType, t);
+
+  if (habit.frequencyType === 'WEEKLY' && habit.weeklyTarget) {
+    return `${frequencyLabel} • ${t('habits.targetPerWeek', { count: habit.weeklyTarget })}`;
+  }
+
+  if (
+    habit.frequencyType === 'CUSTOM' &&
+    habit.customFrequencyCount &&
+    habit.customFrequencyPeriod
+  ) {
+    const periodLabel = t(`habitForm.periods.${habit.customFrequencyPeriod}` as const);
+    return `${frequencyLabel} • ${t('habits.customTargetPerPeriod', {
+      count: habit.customFrequencyCount,
+      period: periodLabel,
+    })}`;
+  }
+
+  return frequencyLabel;
 }

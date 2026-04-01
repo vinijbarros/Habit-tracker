@@ -95,7 +95,7 @@ export function SummaryPage() {
 
     const enriched = summary.habits.map((habit) => ({
       ...habit,
-      consistency: getCompletionRate(habit.doneCount, habit.perDay.length),
+      consistency: habit.completionRate,
     }));
 
     const best = enriched.reduce((currentBest, habit) =>
@@ -287,7 +287,7 @@ export function SummaryPage() {
                 <p className="mt-3 text-sm text-muted">
                   {t('summary.consistency.completedOf', {
                     done: highlights.best.doneCount,
-                    total: highlights.best.perDay.length,
+                    total: highlights.best.targetCount,
                   })}
                 </p>
               </article>
@@ -303,7 +303,7 @@ export function SummaryPage() {
                 <p className="mt-3 text-sm text-muted">
                   {t('summary.consistency.completedOf', {
                     done: highlights.worst.doneCount,
-                    total: highlights.worst.perDay.length,
+                    total: highlights.worst.targetCount,
                   })}
                 </p>
               </article>

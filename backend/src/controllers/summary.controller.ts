@@ -4,9 +4,13 @@ import { prisma } from '../lib/prisma';
 import { sendError, sendSuccess } from '../utils/api-response';
 import { addDaysLocal, formatDbDateOnly, formatLocalDateOnly, parseLocalDateOnly } from '../utils/date';
 import { debugError, debugLog } from '../utils/debug';
+import {
+  calculateCompletionRate,
+  calculateHabitTargetCount,
+  getDefaultDayStatus,
+  type DayStatus,
+} from '../utils/habit-frequency';
 import { weekSummaryQuerySchema } from '../validators/summary.validator';
-
-type DayStatus = 'DONE' | 'MISSED' | 'SKIPPED' | 'PENDING';
 
 export async function getWeekSummary(req: Request, res: Response): Promise<void> {
   if (!req.userId) {
@@ -42,6 +46,10 @@ export async function getWeekSummary(req: Request, res: Response): Promise<void>
       select: {
         id: true,
         title: true,
+        frequencyType: true,
+        weeklyTarget: true,
+        customFrequencyCount: true,
+        customFrequencyPeriod: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -84,17 +92,19 @@ export async function getWeekSummary(req: Request, res: Response): Promise<void>
     });
 
     const habitsSummary = habits.map((habit) => {
-      const perDay = weekDates.map(({ key }): { date: string; status: DayStatus } => {
+      const perDay = weekDates.map(({ key, date }): { date: string; status: DayStatus } => {
         const loggedStatus = logMap.get(`${habit.id}:${key}`);
         return {
           date: key,
-          status: loggedStatus ?? 'PENDING',
+          status: loggedStatus ?? getDefaultDayStatus(habit, date),
         };
       });
 
       const doneCount = perDay.filter((item) => item.status === 'DONE').length;
       const missedCount = perDay.filter((item) => item.status === 'MISSED').length;
       const skippedCount = perDay.filter((item) => item.status === 'SKIPPED').length;
+      const targetCount = calculateHabitTargetCount(habit, startDate, endDate);
+      const completionRate = calculateCompletionRate(doneCount, targetCount);
 
       return {
         habitId: habit.id,
@@ -102,6 +112,8 @@ export async function getWeekSummary(req: Request, res: Response): Promise<void>
         doneCount,
         missedCount,
         skippedCount,
+        targetCount,
+        completionRate,
         perDay,
       };
     });

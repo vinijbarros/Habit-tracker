@@ -45,7 +45,14 @@ export async function createHabit(req: Request, res: Response): Promise<void> {
   }
 
   try {
-    const { title, frequencyType, weeklyTarget, points } = createHabitBodySchema.parse(req.body);
+    const {
+      title,
+      frequencyType,
+      weeklyTarget,
+      customFrequencyCount,
+      customFrequencyPeriod,
+      points,
+    } = createHabitBodySchema.parse(req.body);
     debugLog('HABITS', 'Creating habit', {
       userId: req.userId,
       title,
@@ -59,6 +66,8 @@ export async function createHabit(req: Request, res: Response): Promise<void> {
         title,
         frequencyType,
         weeklyTarget: weeklyTarget ?? null,
+        customFrequencyCount: customFrequencyCount ?? null,
+        customFrequencyPeriod: customFrequencyPeriod ?? null,
         points: points ?? 10,
       },
     });
@@ -103,7 +112,13 @@ export async function updateHabit(req: Request, res: Response): Promise<void> {
 
     const habit = await prisma.habit.update({
       where: { id },
-      data: payload,
+      data: {
+        ...payload,
+        customFrequencyCount:
+          payload.customFrequencyCount === undefined ? undefined : payload.customFrequencyCount,
+        customFrequencyPeriod:
+          payload.customFrequencyPeriod === undefined ? undefined : payload.customFrequencyPeriod,
+      },
     });
 
     sendSuccess(res, 200, { habit });

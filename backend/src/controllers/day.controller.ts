@@ -2,11 +2,16 @@ import type { Request, Response } from 'express';
 import { ZodError } from 'zod';
 import { prisma } from '../lib/prisma';
 import { sendError, sendSuccess } from '../utils/api-response';
-import { isBeforeTodayLocal, parseLocalDateOnly } from '../utils/date';
+import { parseLocalDateOnly } from '../utils/date';
 import { debugError, debugLog } from '../utils/debug';
+import {
+  getCurrentPeriodProgress,
+  getDefaultDayStatus,
+  getPeriodBounds,
+  getPeriodKind,
+  type DayStatus,
+} from '../utils/habit-frequency';
 import { dayQuerySchema } from '../validators/day.validator';
-
-type DayHabitStatus = 'DONE' | 'MISSED' | 'SKIPPED' | 'PENDING';
 
 export async function getDayStatus(req: Request, res: Response): Promise<void> {
   if (!req.userId) {
@@ -34,6 +39,10 @@ export async function getDayStatus(req: Request, res: Response): Promise<void> {
       select: {
         id: true,
         title: true,
+        frequencyType: true,
+        weeklyTarget: true,
+        customFrequencyCount: true,
+        customFrequencyPeriod: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -57,19 +66,62 @@ export async function getDayStatus(req: Request, res: Response): Promise<void> {
 
     const logByHabitId = new Map(logs.map((log) => [log.habitId, log.status]));
 
+    const periodBoundsByHabitId = new Map(
+      habits.map((habit) => {
+        const periodKind = getPeriodKind(habit);
+        return [habit.id, { periodKind, ...getPeriodBounds(normalizedDate, periodKind) }];
+      }),
+    );
+
+    const periodLogs = habits.length
+      ? await prisma.habitLog.findMany({
+          where: {
+            habitId: {
+              in: habits.map((habit) => habit.id),
+            },
+          },
+          select: {
+            habitId: true,
+            date: true,
+            status: true,
+          },
+        })
+      : [];
+
     const day = habits.map((habit) => {
       const loggedStatus = logByHabitId.get(habit.id);
-      let status: DayHabitStatus;
+      let status: DayStatus;
 
       if (loggedStatus) {
         status = loggedStatus;
       } else {
-        status = isBeforeTodayLocal(normalizedDate) ? 'MISSED' : 'PENDING';
+        status = getDefaultDayStatus(habit, normalizedDate);
       }
+
+      const bounds = periodBoundsByHabitId.get(habit.id);
+      const completedInPeriod =
+        bounds === undefined
+          ? 0
+          : periodLogs.filter(
+              (log) =>
+                log.habitId === habit.id &&
+                log.status === 'DONE' &&
+                log.date.getTime() >= bounds.start.getTime() &&
+                log.date.getTime() <= bounds.end.getTime(),
+            ).length;
+      const progress = getCurrentPeriodProgress(habit, normalizedDate, completedInPeriod);
 
       return {
         habitId: habit.id,
         title: habit.title,
+        frequencyType: habit.frequencyType,
+        weeklyTarget: habit.weeklyTarget,
+        customFrequencyCount: habit.customFrequencyCount,
+        customFrequencyPeriod: habit.customFrequencyPeriod,
+        periodKind: progress.periodKind,
+        targetInPeriod: progress.targetCount,
+        completedInPeriod: progress.completedCount,
+        remainingInPeriod: progress.remainingCount,
         status,
       };
     });
