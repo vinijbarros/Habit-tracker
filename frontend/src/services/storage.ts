@@ -1,4 +1,5 @@
 const AUTH_STORAGE_KEY = 'habit-tracker-auth';
+const AUTH_NOTICE_STORAGE_KEY = 'habit-tracker-auth-notice';
 
 export interface StoredAuth {
   token: string;
@@ -30,4 +31,19 @@ export function saveStoredAuth(data: StoredAuth): void {
 
 export function clearStoredAuth(): void {
   localStorage.removeItem(AUTH_STORAGE_KEY);
+}
+
+export function saveAuthNotice(message: string): void {
+  sessionStorage.setItem(AUTH_NOTICE_STORAGE_KEY, message);
+}
+
+export function consumeAuthNotice(): string | null {
+  const message = sessionStorage.getItem(AUTH_NOTICE_STORAGE_KEY);
+
+  if (!message) {
+    return null;
+  }
+
+  sessionStorage.removeItem(AUTH_NOTICE_STORAGE_KEY);
+  return message;
 }

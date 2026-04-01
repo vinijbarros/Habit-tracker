@@ -13,6 +13,12 @@ enum FrequencyType {
   CUSTOM
 }
 
+enum CustomFrequencyPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
 enum HabitLogStatus {
   DONE
   MISSED
@@ -30,13 +36,16 @@ model User {
 }
 
 model Habit {
-  id            String        @id @default(uuid()) @db.Uuid
-  userId        String        @db.Uuid
-  title         String
-  frequencyType FrequencyType
-  weeklyTarget  Int?
-  active        Boolean       @default(true)
-  createdAt     DateTime      @default(now())
+  id                    String                @id @default(uuid()) @db.Uuid
+  userId                String                @db.Uuid
+  title                 String
+  frequencyType         FrequencyType
+  weeklyTarget          Int?
+  customFrequencyCount  Int?
+  customFrequencyPeriod CustomFrequencyPeriod?
+  points                Int                   @default(10)
+  active                Boolean               @default(true)
+  createdAt             DateTime              @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   logs HabitLog[]

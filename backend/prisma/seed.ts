@@ -15,11 +15,13 @@ async function main() {
           {
             title: 'Beber 2L de agua',
             frequencyType: 'DAILY',
+            points: 10,
           },
           {
             title: 'Treinar 3x por semana',
             frequencyType: 'WEEKLY',
             weeklyTarget: 3,
+            points: 20,
           },
         ],
       },

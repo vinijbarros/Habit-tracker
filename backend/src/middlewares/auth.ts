@@ -1,13 +1,18 @@
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
+import { prisma } from '../lib/prisma';
 import { debugError, debugLog } from '../utils/debug';
 
 interface JwtPayload {
   sub?: string;
 }
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction): void {
+export async function authMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -34,6 +39,22 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
     }
 
     req.userId = payload.sub;
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      debugLog('AUTH', 'Token subject no longer exists in database', {
+        userId: req.userId,
+        method: req.method,
+        path: req.path,
+      });
+      res.status(401).json({ message: 'Session is no longer valid. Please sign in again.' });
+      return;
+    }
+
     debugLog('AUTH', 'Token validated', { userId: req.userId, method: req.method, path: req.path });
     next();
   } catch (error) {

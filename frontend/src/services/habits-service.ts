@@ -1,5 +1,5 @@
 import { http } from './http';
-import type { FrequencyType, Habit } from '../types/habit';
+import type { CustomFrequencyPeriod, FrequencyType, Habit } from '../types/habit';
 
 interface HabitsResponse {
   success: true;
@@ -19,12 +19,18 @@ export interface HabitPayload {
   title: string;
   frequencyType: FrequencyType;
   weeklyTarget?: number | null;
+  customFrequencyCount?: number | null;
+  customFrequencyPeriod?: CustomFrequencyPeriod | null;
+  points?: number;
 }
 
 export interface HabitUpdatePayload {
   title?: string;
   frequencyType?: FrequencyType;
   weeklyTarget?: number | null;
+  customFrequencyCount?: number | null;
+  customFrequencyPeriod?: CustomFrequencyPeriod | null;
+  points?: number;
   active?: boolean;
 }
 

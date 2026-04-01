@@ -2,92 +2,120 @@
 
 Monorepo com duas aplicações:
 
-- `backend`: API com Express + TypeScript
+- `backend`: API com Express + TypeScript + Prisma
 - `frontend`: app web com React + Vite + TypeScript
 
 ## Requisitos
 
 - Node.js `20+`
-- npm `10+` (recomendado)
+- npm `10+`
+- PostgreSQL
+- Docker opcional para dev local
 
-## Estrutura
+## Desenvolvimento local
+
+Instalação:
+
+```bash
+cd "/mnt/d/Vinicius - projects/Habit-tracker"
+npm install
+```
+
+Sem Docker:
+
+```bash
+npm run dev
+```
+
+Com Docker:
+
+```bash
+npm run dev:docker
+```
+
+Parar containers:
+
+```bash
+npm run dev:docker:down
+```
+
+## Variáveis de ambiente
+
+Backend em `backend/.env`:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/habit_tracker?schema=public"
+JWT_SECRET="change-me"
+JWT_EXPIRES_IN="7d"
+CORS_ORIGIN="http://localhost:5173"
+```
+
+Frontend:
+
+```env
+VITE_API_URL=http://localhost:3000
+```
+
+Em produção, `VITE_API_URL` deve apontar para a URL pública do backend.
+
+## Prisma
+
+Rodar migrations e seed:
+
+```bash
+cd backend
+npm run prisma:generate
+npx prisma migrate deploy
+npm run prisma:seed
+```
+
+## Deploy
+
+Frontend no Vercel:
 
 ```txt
-habit-tracker/
-  backend/
-  frontend/
+Framework preset: Vite
+Root directory: frontend
+Build command: npm run build
+Output directory: dist
+Environment variable: VITE_API_URL=https://seu-backend.onrender.com
 ```
 
-## Setup rápido
+Backend no Render com Docker:
 
-1. Instalar dependências do backend:
-
-```bash
-cd backend
-npm install
+```txt
+Root directory: backend
+Dockerfile path: backend/Dockerfile
+Environment variables:
+- DATABASE_URL
+- JWT_SECRET
+- JWT_EXPIRES_IN
+- CORS_ORIGIN=https://seu-frontend.vercel.app
 ```
 
-2. Instalar dependências do frontend:
+Backend no Render com Node:
 
-```bash
-cd ../frontend
-npm install
+```txt
+Root directory: backend
+Build command: npm install && npm run prisma:generate && npm run build
+Start command: npx prisma migrate deploy && npm run start
+Environment variables:
+- DATABASE_URL
+- JWT_SECRET
+- JWT_EXPIRES_IN
+- CORS_ORIGIN=https://seu-frontend.vercel.app
 ```
 
-## Rodando em desenvolvimento
+Configuração de CORS para o domínio do Vercel:
 
-Backend:
+- Defina `CORS_ORIGIN` no backend com a URL exata do frontend publicado.
+- Exemplo: `CORS_ORIGIN=https://habit-tracker.vercel.app`
 
-```bash
-cd backend
-npm run dev
-```
-
-Frontend:
-
-```bash
-cd frontend
-npm run dev
-```
-
-## Build e execução
-
-Backend:
-
-```bash
-cd backend
-npm run build
-npm run start
-```
-
-Frontend:
-
-```bash
-cd frontend
-npm run build
-npm run start
-```
-
-## Lint e format
-
-Backend:
-
-```bash
-cd backend
-npm run lint
-npm run format
-```
-
-Frontend:
-
-```bash
-cd frontend
-npm run lint
-npm run format
-```
-
-## Healthcheck da API
-
-Com o backend rodando, acessar:
+## Endpoints úteis
 
 - `GET http://localhost:3000/health`
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /habits`
+- `GET /day?date=YYYY-MM-DD`
+- `GET /summary/week?start=YYYY-MM-DD`

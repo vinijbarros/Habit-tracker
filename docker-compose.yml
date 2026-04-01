@@ -1,19 +1,45 @@
 services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-habit_tracker}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
     working_dir: /app/backend
-    env_file:
-      - ./backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       PORT: 3000
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-habit_tracker}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
     ports:
       - "3000:3000"
     volumes:
       - ./backend:/app/backend
+    command: >
+      sh -c "cd /app/backend
+      && npx prisma generate
+      && npx prisma db push
+      && npm run prisma:seed
+      && npm run dev"
 
   frontend:
     build:
@@ -21,10 +47,14 @@ services:
       dockerfile: frontend/Dockerfile
     working_dir: /app/frontend
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
     ports:
       - "5173:5173"
     volumes:
       - ./frontend:/app/frontend
+
+volumes:
+  db-data:
